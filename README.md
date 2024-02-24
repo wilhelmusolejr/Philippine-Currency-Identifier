@@ -16,7 +16,7 @@ The "Philippine Currency Identifier" is a thesis-developed app that helps visual
 * Storage Memory: A minimum of 100mb of available storage.
 * Android Version: Supported by Android version 7 and up to avail all the application features.
 
-## Hit the boboom Application
+## Download the Application
 <p>Easily download the "Philippine Currency Identifier" app by scanning a QR code. Simply point your device's camera at the QR code, and you'll be directed to the download page</p>
 
 <div align="center">
