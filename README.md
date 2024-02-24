@@ -23,4 +23,4 @@ The "Philippine Currency Identifier" is a thesis-developed app that helps visual
   <img src="markup/app_qr.png" width="40%">
 </div>
 
-<p>If the QR code is not working, please click <a href="http://bit.ly/ph-currency-recog">here</a> to download the app directly.</p>
+<p>If the QR code is not working, please click <a target="blank" href="http://bit.ly/ph-currency-recog">here</a> to download the app directly.</p>
