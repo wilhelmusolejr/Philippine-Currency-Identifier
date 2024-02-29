@@ -81,12 +81,12 @@ import android.util.Size
 class ScanActivity : AppCompatActivity(), GestureDetector.OnGestureListener,
     TextToSpeech.OnInitListener {
 
-    // Model
-    // lateinit var labels:List<String>
+    // Models
     lateinit var model:DetectMetadata
-//    lateinit var imageModel: AllMoneyMetadata
+    // lateinit var imageModel: AllMoneyMetadata // Model for test purposes
     lateinit var handler:Handler
 
+    // Image classification models
     lateinit var paperModel: Paper
     lateinit var coinModel: Coin
     lateinit var validatorModel: Validator
@@ -193,7 +193,7 @@ class ScanActivity : AppCompatActivity(), GestureDetector.OnGestureListener,
         // Image classification pixel
         imageProcessorImage = ImageProcessor.Builder().add(ResizeOp(224, 224, ResizeOp.ResizeMethod.BILINEAR)).build()
 
-        // model
+        // models
         model = DetectMetadata.newInstance(this)
         paperModel = Paper.newInstance(this)
         coinModel = Coin.newInstance(this)
@@ -247,6 +247,7 @@ class ScanActivity : AppCompatActivity(), GestureDetector.OnGestureListener,
                         val category = detectionResult.categoryAsString;
                         val location = detectionResult.locationAsRectF;
 
+                        // Changes the UI (guideline) weather to show coin or paper template
                         if (score > 0.7) {
                             if (category != guideCurrent) {
                                 guideNeedsToChange = true
@@ -255,168 +256,50 @@ class ScanActivity : AppCompatActivity(), GestureDetector.OnGestureListener,
                         }
 
 
-                        // ------ Check if MONEY or COIN is detected in camera
+                        // ------ Check if MONEY or COIN is detected in camera + conditions
                         if((guideCurrent == "money" && score > 0.93) || (guideCurrent == "coin" && score > 0.85)) {
-//                            Log.d("predict", "onSurfaceTextureUpdated: $location")
+                            // Log.d("predict", "onSurfaceTextureUpdated: $location")
 
                             // ------ Temporarily stops detecting object
                             isObjectDetected = true
                             shouldThreadRun = false
 
-                            val left = location.left
-                            val top = location.top
-                            val right = location.right
-                            val bottom = location.bottom
+                            val width = location.right - location.left
+                            val object_center_x = (location.left + location.right) / 2
+                            val object_center_y = (location.top + location.bottom) / 2
 
-                            val width = right - left
-                            val height = bottom - top
+                            val frameCenter = 320 / 2
 
-//                            Log.d("predict", "onSurfaceTextureUpdated: width $width")
-//                            Log.d("predict", "onSurfaceTextureUpdated: height $height")
-
-                            val object_center_x = (left + right) / 2
-                            val object_center_y = (top + bottom) / 2
-
-                            val frameCenterX = 320 / 2
-                            val frameCenterY = 320 / 2
-
-                            val distance = Math.sqrt(Math.pow((object_center_x - frameCenterX.toDouble()), 2.0) + Math.pow((object_center_y - frameCenterY.toDouble()), 2.0))
+                            val distance = Math.sqrt(Math.pow((object_center_x - frameCenter.toDouble()), 2.0) + Math.pow((object_center_y - frameCenter.toDouble()), 2.0))
                             val threshold = 70.0
 
                             // Object is not near the center
                             if(distance >= threshold) {
-                                val result = provideMovementInstructions(object_center_x.toDouble(), object_center_y.toDouble(), frameCenterX.toDouble(), frameCenterY.toDouble())
-                                // Changes the UI to original
-                                scanLayout.background = ContextCompat.getDrawable(this@ScanActivity, R.drawable.bg_gradient_invalid)
-
-                                // ------ quick vibration
-                                vibrator.vibrate(300)
-
-                                // ------ Stops the scanning audio
-                                pauseAudio()
-
-                                var ttsMessage = "Object is not near the center. $result"
-
-                                val params = Bundle()
-                                val uniqueId = "farAway"
-
-                                params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, uniqueId)
-                                val speechListener = object : UtteranceProgressListener() {
-                                    override fun onDone(utteranceId: String?) {
-                                        isObjectDetected = false
-                                        shouldThreadRun = true
-                                        isThreadReturned = true
-
-                                        playAudio()
-
-                                        scanLayout.background = ContextCompat.getDrawable(this@ScanActivity, R.drawable.bg_gradient)
-
-                                    }
-
-                                    override fun onError(utteranceId: String?) {
-                                    }
-
-                                    override fun onStart(utteranceId: String?) {
-                                    }
-                                }
-                                tts.setOnUtteranceProgressListener(speechListener)
-                                tts.speak(ttsMessage, TextToSpeech.QUEUE_FLUSH, params,uniqueId)
-
-//                                Log.d("predict", "xx")
-                                return@Thread
-
-                            }
-
-                            // Paper bill is too far away
-                            if(guideCurrent == "money" && width < 130 ) {
-                                var ttsMessage = "Paper bill is too far away from the camera. Please place the paper bill near the camera"
-
-                                // Changes the UI to original
-                                scanLayout.background = ContextCompat.getDrawable(this@ScanActivity, R.drawable.bg_gradient_invalid)
-
-                                // ------ quick vibration
-                                vibrator.vibrate(300)
-
-                                // ------ Stops the scanning audio
-                                pauseAudio()
-
-                                val params = Bundle()
-                                val uniqueId = "farAway"
-
-                                params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, uniqueId)
-                                val speechListener = object : UtteranceProgressListener() {
-                                    override fun onDone(utteranceId: String?) {
-                                        isObjectDetected = false
-                                        shouldThreadRun = true
-                                        isThreadReturned = true
-
-                                        playAudio()
-
-                                        scanLayout.background = ContextCompat.getDrawable(this@ScanActivity, R.drawable.bg_gradient)
-
-                                    }
-
-                                    override fun onError(utteranceId: String?) {
-                                    }
-
-                                    override fun onStart(utteranceId: String?) {
-                                    }
-                                }
-                                tts.setOnUtteranceProgressListener(speechListener)
-                                tts.speak(ttsMessage, TextToSpeech.QUEUE_FLUSH, params,uniqueId)
-
-//                                Log.d("predict", "xx")
+                                val result = provideMovementInstructions(object_center_x.toDouble(), object_center_y.toDouble(), frameCenter.toDouble(), frameCenter.toDouble())
+                                announceMessage("Object is not near the center. $result", "farAway")
                                 return@Thread
                             }
 
-                            // Coin bill is too far away
-                            if(guideCurrent == "coin" && (width < 160 || width > 215)) {
-                                var ttsMessage = ""
-
-                                if(width <130) {
-                                    ttsMessage = "Coin is too far away from the camera. Please place the coin near the camera"
-                                } else {
-                                    ttsMessage = "Coin is too near from the camera. Please place the coin a little bit far from the camera"
+                            // Currency proximity validation
+                            when (guideCurrent) {
+                                "money" -> if (width < 130) {
+                                    announceMessage("Paper bill is too far away from the camera. Please place the paper bill near the camera", "farAway")
+                                    return@Thread
                                 }
+                                "coin" -> if (width < 160 || width > 215) {
 
-                                // Changes the UI to original
-                                scanLayout.background = ContextCompat.getDrawable(this@ScanActivity, R.drawable.bg_gradient_invalid)
-
-                                // ------ quick vibration
-                                vibrator.vibrate(300)
-
-                                // ------ Stops the scanning audio
-                                pauseAudio()
-
-                                val params = Bundle()
-                                val uniqueId = "farAway"
-
-                                params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, uniqueId)
-                                val speechListener = object : UtteranceProgressListener() {
-                                        override fun onDone(utteranceId: String?) {
-                                            isObjectDetected = false
-                                            shouldThreadRun = true
-                                            isThreadReturned = true
-
-                                            playAudio()
-
-                                            scanLayout.background = ContextCompat.getDrawable(this@ScanActivity, R.drawable.bg_gradient)
-
-                                        }
-
-                                        override fun onError(utteranceId: String?) {
-                                        }
-
-                                        override fun onStart(utteranceId: String?) {
-                                        }
+                                    val coinMessage = if (width < 160) {
+                                        "Coin is too far away from the camera. Please place the coin near the camera"
+                                    } else {
+                                        "Coin is too far away from the camera. Please place the coin near the camera"
                                     }
-                                tts.setOnUtteranceProgressListener(speechListener)
-                                tts.speak(ttsMessage, TextToSpeech.QUEUE_FLUSH, params,uniqueId)
 
-//                                Log.d("predict", "xx")
-                                return@Thread
+                                    announceMessage(coinMessage, "farAway")
+                                    return@Thread
+                                }
                             }
-//                            Log.d("predict", "bleng")
+
+                            // Runs validation model whether the currency is valid or not
 
                             var imageClassification = TensorImage.fromBitmap(bitmap)
                             imageClassification = imageProcessorImage.process(imageClassification)
@@ -440,10 +323,10 @@ class ScanActivity : AppCompatActivity(), GestureDetector.OnGestureListener,
                                     var label = item.label
                                     var score = (item.score * 10000).roundToInt().toDouble() / 10000
 
-                                    Log.d("predict", ": $label ${item.score}")
+                                    // Log.d("predict", ": $label ${item.score}")
 
                                     if(label == "money" && score > 0.9 && score <= 1.0) {
-                                        Log.d("predict", ": tite")
+                                        // Log.d("predict", ": tite")
                                         predictedCategory = label
                                         break
                                     } else {
@@ -454,83 +337,15 @@ class ScanActivity : AppCompatActivity(), GestureDetector.OnGestureListener,
                                     }
                                 }
 
-                                Log.d("predict", ": out $predictedCategory")
+                                // Log.d("predict", ": out $predictedCategory")
 
                                 when (predictedCategory) {
                                     "invalid" -> {
-                                        // Changes the UI to original
-                                        scanLayout.background = ContextCompat.getDrawable(this@ScanActivity, R.drawable.bg_gradient_invalid)
-
-                                        // ------ quick vibration
-                                        vibrator.vibrate(300)
-
-                                        // ------ Stops the scanning audio
-                                        pauseAudio()
-
-                                        var ttsMessage = "Unrecognizable, try again."
-
-                                        val params = Bundle()
-                                        val uniqueId = "farAway"
-
-                                        params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, uniqueId)
-                                        val speechListener = object : UtteranceProgressListener() {
-                                            override fun onDone(utteranceId: String?) {
-                                                isObjectDetected = false
-                                                shouldThreadRun = true
-                                                isThreadReturned = true
-                                                playAudio()
-
-                                                scanLayout.background = ContextCompat.getDrawable(this@ScanActivity, R.drawable.bg_gradient)
-                                            }
-
-                                            override fun onError(utteranceId: String?) {
-                                            }
-
-                                            override fun onStart(utteranceId: String?) {
-                                            }
-                                        }
-                                        tts.setOnUtteranceProgressListener(speechListener)
-                                        tts.speak(ttsMessage, TextToSpeech.QUEUE_FLUSH, params,uniqueId)
-
-//                                            Log.d("predict", "xx")
+                                        announceMessage("Unrecognizable, try again.", "farAway")
                                         return@Thread
                                     }
                                     "foreign" -> {
-                                        // Changes the UI to original
-                                        scanLayout.background = ContextCompat.getDrawable(this@ScanActivity, R.drawable.bg_gradient_invalid)
-
-                                        // ------ quick vibration
-                                        vibrator.vibrate(300)
-
-                                        // ------ Stops the scanning audio
-                                        pauseAudio()
-
-                                        var ttsMessage = "Detected foreign money. Try again"
-
-                                        val params = Bundle()
-                                        val uniqueId = "farAway"
-
-                                        params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, uniqueId)
-                                        val speechListener = object : UtteranceProgressListener() {
-                                            override fun onDone(utteranceId: String?) {
-                                                isObjectDetected = false
-                                                shouldThreadRun = true
-                                                isThreadReturned = true
-                                                playAudio()
-
-                                                scanLayout.background = ContextCompat.getDrawable(this@ScanActivity, R.drawable.bg_gradient)
-                                            }
-
-                                            override fun onError(utteranceId: String?) {
-                                            }
-
-                                            override fun onStart(utteranceId: String?) {
-                                            }
-                                        }
-                                        tts.setOnUtteranceProgressListener(speechListener)
-                                        tts.speak(ttsMessage, TextToSpeech.QUEUE_FLUSH, params,uniqueId)
-
-//                                            Log.d("predict", "xx")
+                                        announceMessage("Detected foreign money. Try again", "farAway")
                                         return@Thread
                                     }
 //                                    "money" -> {
@@ -542,6 +357,8 @@ class ScanActivity : AppCompatActivity(), GestureDetector.OnGestureListener,
 //                                    }
                                 }
                             }
+
+                            // To run PAPER or Coin model
 
                             var paperOutput: Paper.Outputs? = null
                             var coinOutput: Coin.Outputs? = null
@@ -711,6 +528,7 @@ class ScanActivity : AppCompatActivity(), GestureDetector.OnGestureListener,
                     }.start()
                 }
 
+                // Changing the GUIDELINE "Coin" or "Paper" ui
                 if (guideNeedsToChange) {
                     if (guideCurrent == "money") {
                         ivScanGuide.setImageResource(R.drawable.paper_guideline);
@@ -738,6 +556,32 @@ class ScanActivity : AppCompatActivity(), GestureDetector.OnGestureListener,
         cameraManager = getSystemService(CAMERA_SERVICE) as CameraManager
         // When CAMERA cannot detect anything within 60 seconds
         // scanTutorial()
+    }
+
+    // Function to handle the common operations for speaking text and updating UI.
+    private fun announceMessage(ttsMessage: String, uniqueId: String) {
+        scanLayout.background = ContextCompat.getDrawable(this@ScanActivity, R.drawable.bg_gradient_invalid)
+        vibrator.vibrate(300) // Quick vibration
+        pauseAudio() // Stops the scanning audio
+
+        val params = Bundle().apply {
+            putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, uniqueId)
+        }
+
+        tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+            override fun onDone(utteranceId: String?) {
+                isObjectDetected = false
+                shouldThreadRun = true
+                isThreadReturned = true
+                playAudio()
+                scanLayout.background = ContextCompat.getDrawable(this@ScanActivity, R.drawable.bg_gradient)
+            }
+
+            override fun onError(utteranceId: String?) {}
+            override fun onStart(utteranceId: String?) {}
+        })
+
+        tts.speak(ttsMessage, TextToSpeech.QUEUE_FLUSH, params, uniqueId)
     }
 
     fun provideMovementInstructions(objectCenterX: Double, objectCenterY: Double, frameCenterX: Double, frameCenterY: Double): String {
@@ -1021,9 +865,6 @@ class ScanActivity : AppCompatActivity(), GestureDetector.OnGestureListener,
         scanningTutTimer.cancel();  // Terminates this timer, discarding any currently scheduled tasks.
         scanningTutTimer.purge();
 
-        // causes error
-        // model.close()
-
         // Shut down TTS
         if(tts != null){
             tts.stop()
@@ -1097,53 +938,5 @@ class ScanActivity : AppCompatActivity(), GestureDetector.OnGestureListener,
         mediaPlayer.isLooping = false
         mediaPlayer.pause()
         mediaPlayer.seekTo(0)
-    }
-
-    private fun scanTutorial() {
-        scanningTutTimer.schedule(object : TimerTask() {
-            override fun run() {
-                if(!isObjectDetected) {
-                    isGoodToRUn = false
-
-                    // Changes the UI to original
-                    scanLayout.background = ContextCompat.getDrawable(this@ScanActivity, R.drawable.bg_gradient_invalid)
-
-                    // Stops the scanning audio
-                    pauseAudio()
-
-                    val params = Bundle()
-                    val uniqueId = "scanProperly"
-                    val ttsMessage = "To scan properly, " +
-                            "1, This application can only detect 1 currency at a time. " +
-                            "2, Ensure that the paper bill is unfolded and laid out flat vertically. " +
-                            "3, Position the currency in the center of the surface. " +
-                            "4, Keep the camera lens clean for optimal performance. Scanning in 3, 2, 1."
-
-                    // Speech
-                    params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, uniqueId)
-                    val speechListener = object : UtteranceProgressListener() {
-                        override fun onDone(utteranceId: String?) {
-                            // Plays the scanning audio
-                            playAudio()
-
-                            // Changes the UI to original
-                            scanLayout.background = ContextCompat.getDrawable(this@ScanActivity, R.drawable.bg_gradient)
-
-                            isGoodToRUn = true
-                            scanTutorial()
-                        }
-
-                        override fun onError(utteranceId: String?) {
-                        }
-
-                        override fun onStart(utteranceId: String?) {
-                        }
-                    }
-                    tts.setOnUtteranceProgressListener(speechListener)
-                    tts.speak(ttsMessage, TextToSpeech.QUEUE_FLUSH, params, uniqueId)
-                }
-
-            }
-        }, 60000)
     }
 }

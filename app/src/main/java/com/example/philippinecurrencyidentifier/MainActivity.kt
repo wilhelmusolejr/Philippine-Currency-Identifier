@@ -17,6 +17,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Element variables
         val continueBtn = findViewById<Button>(R.id.btnContinue)
         val termsMessage = getString(R.string.app_terms_conditions);
 
@@ -63,13 +64,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Initiates text-to-speech conversion
     private fun speakNow(speechMessage: String, uniqueId: String, speechListener: UtteranceProgressListener) {
         val params = Bundle()
         params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, uniqueId)
 
+        // Set the language for the TTS engine
         tts.language = Locale.US
+
+        // Set the speech rate to normal (1.0f).
         tts.setSpeechRate(1.0f)
         tts.setOnUtteranceProgressListener(speechListener)
+
+        // Instruct the TTS engine to speak the given message
         tts.speak(speechMessage, TextToSpeech.QUEUE_FLUSH, params, uniqueId)
     }
 }
