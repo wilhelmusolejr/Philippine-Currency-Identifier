@@ -12,7 +12,6 @@ The "Philippine Currency Identifier" is a thesis-developed app that helps visual
 
 ## Requirements
 * Mobile Device: A compatible mobile device with a functional camera and audio output capabilities
-* RAM Memory: A minimum of 500mb of available RAM.
 * Storage Memory: A minimum of 100mb of available storage.
 * Android Version: Supported by Android version 7 and up to avail all the application features.
 
