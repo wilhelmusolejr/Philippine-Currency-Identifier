@@ -27,10 +27,10 @@ The "Philippine Currency Identifier" is a thesis-developed app that helps visual
 <p>Easily download the "Philippine Currency Identifier" app by scanning a QR code. Simply point your device's camera at the QR code, and you'll be directed to the download page</p>
 
 <div align="center">
-  <img src="markup/app_qr.png" width="40%">
+  <img src="markup/app_qr_1.png" width="40%">
 </div>
 
-<p>If you encounter any issues with the QR code, please click <a target="blank" href="http://bit.ly/ph-currency-recog">here</a> or manually visit http://bit.ly/ph-currency-recog to download the app directly</p>
+<p>If you encounter any issues with the QR code, please click <a target="blank" href="https://tinyurl.com/ph-currency-recogs">here</a> or manually visit https://tinyurl.com/ph-currency-recogs to download the app directly</p>
 
 ## Technology Used
 This section provides an overview of the key technologies and frameworks utilized in the development of the Philippine Currency Identifier app:
