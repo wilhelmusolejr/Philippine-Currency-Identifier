@@ -59,3 +59,18 @@ We welcome contributions of all kinds from the community. If you're interested i
 * Fork the repository and create your branch from `main`.
 * Write clear code and add appropriate tests.
 * Submit a pull request with comprehensive descriptions of changes.
+
+## Changelog
+
+* V1.0.0
+  <p>Initial release.</p>
+  <p>Scanning errors on Android 10 and below.</p>
+
+* V2.0.0
+  <p>Reduced app file size by removing extra ML models.</p>
+  <p>Addressed the high file size issue reported by users.</p>
+
+* V3.0.0
+  <p>Current stable release.</p>
+  <p>Resolved Android 10 and below scanning issue.</p>
+  <p>App working effectively across all supported versions.</p>
