@@ -1,13 +1,8 @@
 package com.example.philippinecurrencyidentifier
 
 // Camera Library
-
-
 // Text to Speech library
-
-
 // Import of machine learning model files
-
 // TensorFlow Library
 
 import android.Manifest
