@@ -15,6 +15,7 @@ class MyAccessibilityService : AccessibilityService() {
     private var lastVolumeUpPressTime: Long = 0
     private val doublePressInterval: Long = 400 // Interval in ms to consider for double press
 
+    // Connect accessibility service to device
     override fun onServiceConnected() {
         super.onServiceConnected()
 
@@ -30,6 +31,7 @@ class MyAccessibilityService : AccessibilityService() {
         Log.d(TAG, "SERVICE CONNECTED")
     }
 
+    // When physical button clicked this function gets called.
     override fun onKeyEvent(event: KeyEvent): Boolean {
 
         // FOR DEBUGGING -- CURRENTLY, this function does not trigger.
@@ -38,8 +40,8 @@ class MyAccessibilityService : AccessibilityService() {
         return super.onKeyEvent(event)
     }
 
+    // Opens the Application -- WORKING
     private fun openApp() {
-        // Replace "your.package.name" with your app's package name
         val launchIntent = Intent(this, MainActivity::class.java)
         launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(launchIntent)
