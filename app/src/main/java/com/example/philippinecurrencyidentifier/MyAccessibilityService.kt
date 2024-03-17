@@ -31,19 +31,11 @@ class MyAccessibilityService : AccessibilityService() {
     }
 
     override fun onKeyEvent(event: KeyEvent): Boolean {
-        Log.d(TAG, "onKeyEvent: INITIALIZED")
-        
-        if (event.keyCode == KeyEvent.KEYCODE_VOLUME_UP && event.action == KeyEvent.ACTION_DOWN) {
-            val currentTime = System.currentTimeMillis()
-            if (currentTime - lastVolumeUpPressTime < doublePressInterval) {
-                // Detected double press, open the application
-                openApp()
-                lastVolumeUpPressTime = 0 // Reset time
-                return true // Consume the event
-            }
-            lastVolumeUpPressTime = currentTime
-        }
-        return super.onKeyEvent(event) // Return false allows the event to be handled by other apps
+
+        // FOR DEBUGGING -- CURRENTLY, this function does not trigger.
+
+        Log.d(TAG, "Key event: ${event.keyCode}")
+        return super.onKeyEvent(event)
     }
 
     private fun openApp() {
