@@ -27,10 +27,10 @@ The "Philippine Currency Identifier" is a thesis-developed app that helps visual
 <p>Easily download the "Philippine Currency Identifier" app by scanning a QR code. Simply point your device's camera at the QR code, and you'll be directed to the download page</p>
 
 <div align="center">
-  <img src="markup/app_qr_1.png" width="40%">
+  <img src="markup/app_qr_3.png" width="40%">
 </div>
 
-<p>If you encounter any issues with the QR code, please click <a target="blank" href="https://tinyurl.com/ph-currency-recogs">here</a> or manually visit https://tinyurl.com/ph-currency-recogs to download the app directly</p>
+<p>If you encounter any issues with the QR code, please click <a target="blank" href="https://bit.ly/ph-identifier">here</a> or manually visit bit.ly/ph-identifier to download the app directly</p>
 
 ## Technology Used
 This section provides an overview of the key technologies and frameworks utilized in the development of the Philippine Currency Identifier app:
@@ -59,3 +59,18 @@ We welcome contributions of all kinds from the community. If you're interested i
 * Fork the repository and create your branch from `main`.
 * Write clear code and add appropriate tests.
 * Submit a pull request with comprehensive descriptions of changes.
+
+## Changelog
+
+* V1.0.0
+  <p>Initial release.</p>
+  <p>Scanning errors on Android 10 and below.</p>
+
+* V2.0.0
+  <p>Reduced app file size by removing extra ML models.</p>
+  <p>Addressed the high file size issue reported by users.</p>
+
+* V3.0.0
+  <p>Current stable release.</p>
+  <p>Resolved Android 10 and below scanning issue.</p>
+  <p>App working effectively across all supported versions.</p>
